@@ -830,6 +830,17 @@ void App::SetAppPath(const base::FilePath& app_path) {
   app_path_ = app_path;
 }
 
+#if !defined(OS_MACOSX)
+void App::SetAppLogsPath() {
+  base::FilePath path;
+  if (base::PathService::Get(DIR_USER_DATA, &path)) {
+    path = path.Append(base::FilePath::FromUTF8Unsafe(GetApplicationName()));
+    path = path.Append(base::FilePath::FromUTF8Unsafe("logs"));
+    base::PathService::Override(DIR_APP_LOGS, path);
+  }
+}
+#endif
+
 base::FilePath App::GetPath(mate::Arguments* args, const std::string& name) {
   bool succeed = false;
   base::FilePath path;
@@ -1377,6 +1388,7 @@ void App::BuildPrototype(v8::Isolate* isolate,
       .SetMethod("getAppPath", &App::GetAppPath)
       .SetMethod("setPath", &App::SetPath)
       .SetMethod("getPath", &App::GetPath)
+      .SetMethod("setAppLogsPath", &App::SetAppLogsPath)
       .SetMethod("setDesktopName", &App::SetDesktopName)
       .SetMethod("getLocale", &App::GetLocale)
       .SetMethod("getLocaleCountryCode", &App::GetLocaleCountryCode)
